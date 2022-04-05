@@ -12,7 +12,7 @@ fileUploader = st.file_uploader('Select a file')
 
 if st.button('Submit File'):
     if fileUploader is None:
-        st.write('You neede to select a file')
+        st.write('You need to select a file')
     else:
         st.write('File submitted')
         df = analyzeData(fileUploader)
