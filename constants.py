@@ -8,6 +8,9 @@ NUM_CDE = 1
 # Total number of required credits
 NUM_LS_CREDITS = 18
 
+# Total number of required categories
+NUM_LS_CAT = 3
+
 # Classes satisfying core requirements
 CORE_CLASSES = {
     'Math': [1910, 1920, 2930, 2940],
