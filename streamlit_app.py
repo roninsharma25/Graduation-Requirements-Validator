@@ -1,8 +1,9 @@
 from utils import *
+from PIL import Image
 import streamlit as st
 
-pageTitles = ['Graduation Requirements Validator', 'Analyze Results']
-pageFormButtons = ['Submit', 'Back']
+pageTitles = ['Graduation Requirements Validator', 'Input Data', 'Analyze Results']
+pageFormButtons = ['Begin', 'Submit', 'Back']
 
 if 'page' not in st.session_state or 'error' not in st.session_state:
     st.session_state.page = 0
@@ -13,19 +14,38 @@ st.title(pageTitles[st.session_state.page])
 
 # Cases for each page
 
+col1, col2 = st.columns(2)
+fileUploader = None
+
 if (st.session_state.page == 0):
+    col1.subheader('Streamline the ECE graduation process')
+    col1.title(' ')
+    col1.title(' ')
+    col1.subheader('Quickly identify missing requirements')
+    col1.title(' ')
+    col1.title(' ')
+    col1.subheader('Discover classes to fulfill requirements')
+    
+    image = Image.open('images/Cornell.png')
+    col2.image(image, width = 452)
+
+elif (st.session_state.page == 1):
     ### Add template file download feature
-    if st.button('Download Template'):
+    if col1.button('Download Template'):
         print('download template')
 
     ### Add file upload feature
-    fileUploader = st.file_uploader('Select a file')
-    
+    fileUploader = col2.file_uploader('Select a file')
+
     if (st.session_state.error):
         st.write('You need to select a file')
 
 def buttonCallback():
     if (st.session_state.page == 0):
+
+        st.session_state.page = 1
+    
+    elif (st.session_state.page == 1):
         if fileUploader is None:
             st.session_state.error = not st.session_state.error
         else:
@@ -34,8 +54,8 @@ def buttonCallback():
             st.write(df)
     
             # Switch pages
-            st.session_state.page = 1 - st.session_state.page
+            st.session_state.page = 2
 
 
-with st.form(key = 'Form Button'):
+with col1.form(key = 'Form Button'):
     submitButton = st.form_submit_button(label = pageFormButtons[st.session_state.page], on_click = buttonCallback)
