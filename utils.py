@@ -2,7 +2,57 @@ from constants import *
 import pandas as pd
 import numpy as np
 
+"""
+Features to check
+1. MATH, PHYS, CHEM, CS, PE, FWS, ENGRI, ENGRD
+2. Liberal studies
+3. 2100, 2200, 2300
+4. AAE
+5. OTE
+6. 3000+ ECE
+7. 4000+ ECE
+8. CDE
+9. Advanced computing
+10. Probability
+
+"""
+
 problems = []
+
+def basicRequirements():
+    # MATH 1910, 1920, 2930, 2940
+
+    # PHYS 1112, 2213, 2214
+
+    # CHEM 2090
+
+    # CS 1110
+
+    # 2 PE
+
+    # 1 ENGRI
+
+    # 1 ENGRD
+
+    # 2 FWS
+
+    pass
+
+def eceSpecific():
+    # ECE 2100, 2200, 2300
+
+    # CDE
+
+    # Advanced computing
+
+    # Probability
+
+    # OTE
+
+    # 3000/4000/AAE
+
+    pass
+
 
 def analyzeData(uploadedFile):
     global problems
