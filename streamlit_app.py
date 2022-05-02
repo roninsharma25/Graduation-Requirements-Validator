@@ -30,6 +30,8 @@ if (st.session_state.page == 0):
     col2.image(image, width = 452)
 
 elif (st.session_state.page == 1):
+    col1, col2 = st.columns(2)
+
     ### Add template file download feature
     if col1.button('Download Template'):
         print('download template')
@@ -40,7 +42,14 @@ elif (st.session_state.page == 1):
     if (st.session_state.error):
         st.write('You need to select a file')
 
+elif (st.session_state.page == 2):
+    col1, col2 = st.columns(2)
+
+    col1.write('File submitted')
+    col1.write(st.session_state.data)
+
 def buttonCallback():
+    global fileUploader
     if (st.session_state.page == 0):
 
         st.session_state.page = 1
@@ -48,14 +57,29 @@ def buttonCallback():
     elif (st.session_state.page == 1):
         if fileUploader is None:
             st.session_state.error = not st.session_state.error
+
         else:
-            st.write('File submitted')
-            df = analyzeData(fileUploader)
-            st.write(df)
-    
+
+            st.session_state.data = analyzeData(fileUploader)
+
             # Switch pages
             st.session_state.page = 2
+    
+    else: # last page
+
+        # Switch pages
+        st.session_state.page = 1
+
+
+
+def buttonBackCallback():
+    st.session_state.page -= 1
+
+print(st.session_state.page)
 
 
 with col1.form(key = 'Form Button'):
     submitButton = st.form_submit_button(label = pageFormButtons[st.session_state.page], on_click = buttonCallback)
+
+if (st.session_state.page == 1):
+    backButton = st.button(label = 'Back', on_click = buttonBackCallback)
