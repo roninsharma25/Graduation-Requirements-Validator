@@ -53,26 +53,39 @@ def simpleRequirements(data):
         problems += checkRequirement(data, req, 0)
     
     # MATH 1910, 1920, 2930, 2940
-    # PHYS 1112, 2213, 2214
+    # PHYS 1112, 2213, 2214 - TODO: INCORPORATE HONORS ALTERNATIVES
     # CHEM 2090
     # CS 1110
     for req in CLASS_SPECIFIC.keys():
         res = checkRequirement(data, req, 1)
         print(res)
         problems += res
+    
+    # TODO: ADD MULTI-OPTION CLASSES
+    # Probability - 1 of ENGRD 2700, ECE 3100
+    # Advanced Computing: 1 of CS 2110, ECE 2400, ENGRD 3200, AEP 4380, ECE 4740, ECE 4750, ECE 4760
+    # CDE: 1 of 4370, 4530, 4670, 4740, 4750, 4760
+    # Technical Writing: 1 of ENGRC 3350, ENGRC 3500, ENGRC 3023, ECE 4760 follow-up
+        # TODO: check recent course addition
 
     return problems
 
 def complicatedRequirements():
-    # CDE
-
-    # Advanced computing
-
-    # Probability
 
     # OTE
+        # 9 credits
+        # At least 1 3000+
+        # No ENGRC, no business, no ECE EXCEPT FOR ECE 5830
+        # Provide a disclaimer: these should count/probably won't count
 
-    # 3000/4000/AAE
+    # 3000/4000 - at least 21 credits
+    # 3000 - at least 3
+        # at least 3 of: 3030 or 3150, 3100 or 3250, or 3140
+        # Not acceptable: 3600, 5830, 4999, 5870, 5880
+    # 4000 (also count CDE) - at least 3
+
+    # AAE: 6 credits
+        # Provide a disclaimer: verify with advisor that these count (they probably will)
 
     pass
 
