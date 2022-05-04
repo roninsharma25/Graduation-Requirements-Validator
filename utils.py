@@ -70,24 +70,49 @@ def simpleRequirements(data):
 
     return problems
 
-def complicatedRequirements():
+def complicatedRequirements(data):
+    problems = []
 
-    # OTE
+    # OTE -----
         # 9 credits
         # At least 1 3000+
         # No ENGRC, no business, no ECE EXCEPT FOR ECE 5830
         # Provide a disclaimer: these should count/probably won't count
+    requirementData = data.loc[['UPPER LEVEL']]
+    classes = [class_.strip() for class_ in requirementData.iloc[0] if not pd.isnull(class_)]
 
-    # 3000/4000 - at least 21 credits
+
+
+    # 3000/4000 - at least 21 credits -----
     # 3000 - at least 3
         # at least 3 of: 3030 or 3150, 3100 or 3250, or 3140
         # Not acceptable: 3600, 5830, 4999, 5870, 5880
     # 4000 (also count CDE) - at least 3
+    requirementData = data.loc[['UPPER LEVEL']]
+    classes = [class_.strip() for class_ in requirementData.iloc[0] if not pd.isnull(class_)]
 
-    # AAE: 6 credits
-        # Provide a disclaimer: verify with advisor that these count (they probably will)
+    # Verify that all are ECE courses
+    nonECEClasses = [class_ for class_ in classes if class_.strip(' ')[0].upper() != 'ECE']
+    if (len(nonECEClasses) > 0):
+        problems.append(f'All upper level courses need to be ECE courses, but you have included these courses: {nonECEClasses}')
 
-    pass
+    ECEClassNums = [class_.strip(' ')[1] for class_ in classes if class_.strip(' ')[0].upper() == 'ECE']
+    invalidECEClasses = [num for num in ECEClassNums if num in INVALID_UPPER_LEVEL_ECE]
+    if (len(invalidECEClasses) > 0):
+        problems.append(f'The following courses are not acceptable upper-level ECE electives {invalidECEClasses}')
+
+    ECE3000 = [classNum for classNum in ECEClassNums if classNum < 4000]
+    if ( (3030 not in ECE3000) and (3150 not in ECE3000) ):
+        problems.append('You need to take either ECE 3030 or ECE 3150')
+    
+    if ( (3100 not in ECE3000) and (3250 not in ECE3000) ):
+        problems.append('You need to take either ECE 3100 or ECE 3250')
+
+
+    # AAE
+    requirementData = data.loc[['AAE']]
+    classes = [class_.strip() for class_ in requirementData.iloc[0] if not pd.isnull(class_)]
+    problems.append(f'Verify with your advisor that they approve of these courses as AAE: {classes}')
 
 
 def analyzeData(uploadedFile):
@@ -112,7 +137,7 @@ def analyzeLS(classes):
     problems = []
     df = pd.read_csv('liberal_studies.csv')
     
-    # TODO: Update category checker logic nto to double count single classes
+    # TODO: Update category checker logic not to double count single classes
     categories = []
     for class_ in classes:
         print(class_)
