@@ -76,12 +76,20 @@ def complicatedRequirements(data):
     # OTE -----
         # 9 credits
         # At least 1 3000+
-        # No ENGRC, no business, no ECE EXCEPT FOR ECE 5830
+        # No ENGRC, no ECE EXCEPT FOR ECE 5830
         # Provide a disclaimer: these should count/probably won't count
     requirementData = data.loc[['UPPER LEVEL']]
     classes = [class_.strip() for class_ in requirementData.iloc[0] if not pd.isnull(class_)]
 
+    ECEClassesWithout5830 = [class_ for class_ in classes if class_.strip(' ')[0].upper() == 'ECE' and int(class_.strip(' ')[1]) != 5830 ]
+    problems.append(f'The only ECE course that can be considered an OTE is ECE 5830, but you have included these courses: {ECEClassesWithout5830}')
 
+    ENGRCOTEClasses = [class_ for class_ in classes if class_.strip(' ')[0].upper() == 'ENGRC']
+    problems.append(f"ENGRC courses can't be used to satisfy the OTE reqirement, but you have included these courses: {ENGRCOTEClasses} ")
+
+    OTE3000 = [ class_ for class_ in classes if ( int(class_.strip(' ')[1]) >= 3000 and class_ not in ENGRCOTEClasses ) ]
+    if ( not len(OTE3000) ):
+        problems.append('You need at least one 3000+ course as an OTE')
 
     # 3000/4000 - at least 21 credits -----
     # 3000 - at least 3
@@ -100,20 +108,23 @@ def complicatedRequirements(data):
     invalidECEClasses = [num for num in ECEClassNums if num in INVALID_UPPER_LEVEL_ECE]
     if (len(invalidECEClasses) > 0):
         problems.append(f'The following courses are not acceptable upper-level ECE electives {invalidECEClasses}')
-
-    ECE3000 = [classNum for classNum in ECEClassNums if classNum < 4000]
-    if ( (3030 not in ECE3000) and (3150 not in ECE3000) ):
+    
+    foundationalCourses = [ class_ for class_ in ECEClassNums if class_ in ECE_FOUNDATION]
+    if ( (3030 not in foundationalCourses) and (3150 not in foundationalCourses) ):
         problems.append('You need to take either ECE 3030 or ECE 3150')
     
-    if ( (3100 not in ECE3000) and (3250 not in ECE3000) ):
+    if ( (3100 not in foundationalCourses) and (3250 not in foundationalCourses) ):
         problems.append('You need to take either ECE 3100 or ECE 3250')
-
+    
+    if ( len(foundationalCourses) < 3 ):
+        problems.append(f'You need to take at least three ECE foundational courses ({ECE_FOUNDATION})')
 
     # AAE
     requirementData = data.loc[['AAE']]
     classes = [class_.strip() for class_ in requirementData.iloc[0] if not pd.isnull(class_)]
     problems.append(f'Verify with your advisor that they approve of these courses as AAE: {classes}')
 
+    return problems
 
 def analyzeData(uploadedFile):
     problems = []
@@ -127,6 +138,7 @@ def analyzeData(uploadedFile):
     problems += analyzeLS(lsClasses)
 
     problems += simpleRequirements(fileData)
+    problems += complicatedRequirements(fileData)
 
     print(fileData)
     print(f'Problems: {problems}')
