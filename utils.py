@@ -184,8 +184,16 @@ def analyzeLS(classes):
     # Remove redundant categories
     categories = np.unique(categories)
 
+    allCategories = LS_REQUIREMENT_SATISFIER.keys()
+    possibleLSCourses = []
+
+    for category in allCategories:
+        if (category not in categories):
+            possibleLSCourses.append( f'These courses: {", ".join(LS_REQUIREMENT_SATISFIER[category])} can be used to satisfy the {category} requirement.' )
+
     numLSCategories = len(categories)
     if (numLSCategories < NUM_LS_CAT):
-        problems.append(f'You have not taken enough LS categories. You have only taken {", ".join(categories)}, but you need {NUM_LS_CAT} categories.')
+        problems.append(f'You have not taken enough LS categories. You have only taken {", ".join(categories)}, but you need {NUM_LS_CAT} categories.' +
+        'Here are some liberal studies suggestions: {possibleLSCourses}')
 
     return problems
