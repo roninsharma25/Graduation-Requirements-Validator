@@ -47,6 +47,8 @@ elif (st.session_state.page == 2):
 
     col1.write('File submitted')
     col1.write(st.session_state.data)
+    col2.write('Problems')
+    col2.write(st.session_state.problems)
 
 def buttonCallback():
     global fileUploader
@@ -60,7 +62,7 @@ def buttonCallback():
 
         else:
 
-            st.session_state.data = analyzeData(fileUploader)
+            st.session_state.data, st.session_state.problems = analyzeData(fileUploader)
 
             # Switch pages
             st.session_state.page = 2

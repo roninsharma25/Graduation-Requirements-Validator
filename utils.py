@@ -17,6 +17,12 @@ Features to check
 
 """
 
+def strFormatterECE(courses):
+    """
+    courses: list of courses
+    """
+    return ", ".join([ "ECE " + str(num) for num in courses ])
+
 def checkRequirement(data, requirement, type_):
     """
     type: 0 for minimum number, 1 for specific classes
@@ -82,10 +88,12 @@ def complicatedRequirements(data):
     classes = [class_.strip() for class_ in requirementData.iloc[0] if not pd.isnull(class_)]
 
     ECEClassesWithout5830 = [class_ for class_ in classes if class_.strip(' ')[0].upper() == 'ECE' and int(class_.strip(' ')[1]) != 5830 ]
-    problems.append(f'The only ECE course that can be considered an OTE is ECE 5830, but you have included these courses: {ECEClassesWithout5830}')
+    if ( len(ECEClassesWithout5830) > 0 ):
+        problems.append(f'The only ECE course that can be considered an OTE is ECE 5830, but you have included these courses: {ECEClassesWithout5830}')
 
     ENGRCOTEClasses = [class_ for class_ in classes if class_.strip(' ')[0].upper() == 'ENGRC']
-    problems.append(f"ENGRC courses can't be used to satisfy the OTE reqirement, but you have included these courses: {ENGRCOTEClasses} ")
+    if ( len(ENGRCOTEClasses) > 0 ):
+        problems.append(f"ENGRC courses can't be used to satisfy the OTE reqirement, but you have included these courses: {ENGRCOTEClasses} ")
 
     OTE3000 = [ class_ for class_ in classes if ( int(class_.strip(' ')[1]) >= 3000 and class_ not in ENGRCOTEClasses ) ]
     if ( not len(OTE3000) ):
@@ -117,12 +125,16 @@ def complicatedRequirements(data):
         problems.append('You need to take either ECE 3100 or ECE 3250')
     
     if ( len(foundationalCourses) < 3 ):
-        problems.append(f'You need to take at least three ECE foundational courses ({ECE_FOUNDATION})')
+        problems.append(f'You need to take at least three ECE foundational courses ({ strFormatterECE(ECE_FOUNDATION) })')
 
     # AAE
     requirementData = data.loc[['AAE']]
     classes = [class_.strip() for class_ in requirementData.iloc[0] if not pd.isnull(class_)]
-    problems.append(f'Verify with your advisor that they approve of these courses as AAE: {classes}')
+
+    if ( len(classes) ):
+        problems.append(f'Verify with your advisor that they approve of these courses as AAE: {classes}')
+    else:
+        problems.append(f'You have not taken any AAE classes')
 
     return problems
 
@@ -143,7 +155,7 @@ def analyzeData(uploadedFile):
     print(fileData)
     print(f'Problems: {problems}')
 
-    return fileData
+    return fileData, problems
 
 def analyzeLS(classes):
     problems = []
