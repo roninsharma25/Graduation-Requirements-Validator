@@ -17,16 +17,16 @@ Features to check
 
 """
 
-def strFormatterECE(courses):
+def strFormatter(courses, subj):
     """
     courses: list of courses
+    subj: course subject
     """
-    return ", ".join([ "ECE " + str(num) for num in courses ])
+    return ", ".join([ f"{subj} " + str(num) for num in courses ])
 
 def checkRequirement(data, requirement, type_):
     """
     type: 0 for minimum number, 1 for specific classes
-    
     """
     requirementData = data.loc[[requirement]]
     classes = [class_.strip() for class_ in requirementData.iloc[0] if not pd.isnull(class_)]
@@ -35,14 +35,28 @@ def checkRequirement(data, requirement, type_):
     if (type_ == 0):
 
         requiredNum = MIN_NUMBER[requirement]
-        if (len(classes) < requiredNum):
-            problems.append(f'You have not taken enough {requirement} classes. You have taken {", ".join(classes)}, but need to take {requiredNum}.')
+        numTaken = len(classes)
+        if (numTaken < requiredNum):
+            str_ = f'You have not taken enough {requirement} classes. '
+            if (numTaken == 0):
+                str_ += f'You need to take {requiredNum}.'
+            else:
+                str_ += f'You have taken {", ".join(classes)}, but need to take {requiredNum}.'
+            
+            problems.append(str_)
     
     else: # type 1
         classNums = [class_.strip(' ')[-1] for class_ in classes]
         missingClasses = [class_ for class_ in CLASS_SPECIFIC[requirement] if class_ not in classNums]
         if (missingClasses != []):
-            problems.append(f'You have not taken all {requirement} classes. You have taken {", ".join(classes)}, but need to take {missingClasses}.')
+            str_ = f'You have not taken all {requirement} classes. '
+            missingFormatted = strFormatter(missingClasses, REQUIREMENT_MAPPER[requirement])
+            if (len(classNums) == 0):
+                str_ += f'You need to take {missingFormatted}.'
+            else:
+                str_ += f'You have taken {", ".join(classes)}, but need to take {missingFormatted}.'
+            
+        problems.append(str_)
 
     return problems
 
@@ -89,15 +103,15 @@ def complicatedRequirements(data):
 
     ECEClassesWithout5830 = [class_ for class_ in classes if class_.strip(' ')[0].upper() == 'ECE' and int(class_.strip(' ')[1]) != 5830 ]
     if ( len(ECEClassesWithout5830) > 0 ):
-        problems.append(f'The only ECE course that can be considered an OTE is ECE 5830, but you have included these courses: {ECEClassesWithout5830}')
+        problems.append(f'The only ECE course that can be considered an OTE is ECE 5830, but you have included these courses: {ECEClassesWithout5830}.')
 
     ENGRCOTEClasses = [class_ for class_ in classes if class_.strip(' ')[0].upper() == 'ENGRC']
     if ( len(ENGRCOTEClasses) > 0 ):
-        problems.append(f"ENGRC courses can't be used to satisfy the OTE reqirement, but you have included these courses: {ENGRCOTEClasses} ")
+        problems.append(f"ENGRC courses can't be used to satisfy the OTE reqirement, but you have included these courses: {ENGRCOTEClasses}.")
 
     OTE3000 = [ class_ for class_ in classes if ( int(class_.strip(' ')[1]) >= 3000 and class_ not in ENGRCOTEClasses ) ]
     if ( not len(OTE3000) ):
-        problems.append('You need at least one 3000+ course as an OTE')
+        problems.append('You need at least one 3000+ course as an OTE.')
 
     # 3000/4000 - at least 21 credits -----
     # 3000 - at least 3
@@ -110,31 +124,31 @@ def complicatedRequirements(data):
     # Verify that all are ECE courses
     nonECEClasses = [class_ for class_ in classes if class_.strip(' ')[0].upper() != 'ECE']
     if (len(nonECEClasses) > 0):
-        problems.append(f'All upper level courses need to be ECE courses, but you have included these courses: {nonECEClasses}')
+        problems.append(f'All upper level courses need to be ECE courses, but you have included these courses: {nonECEClasses}.')
 
     ECEClassNums = [class_.strip(' ')[1] for class_ in classes if class_.strip(' ')[0].upper() == 'ECE']
     invalidECEClasses = [num for num in ECEClassNums if num in INVALID_UPPER_LEVEL_ECE]
     if (len(invalidECEClasses) > 0):
-        problems.append(f'The following courses are not acceptable upper-level ECE electives {invalidECEClasses}')
+        problems.append(f'The following courses are not acceptable upper-level ECE electives {invalidECEClasses}.')
     
     foundationalCourses = [ class_ for class_ in ECEClassNums if class_ in ECE_FOUNDATION]
     if ( (3030 not in foundationalCourses) and (3150 not in foundationalCourses) ):
-        problems.append('You need to take either ECE 3030 or ECE 3150')
+        problems.append('You need to take either ECE 3030 or ECE 3150.')
     
     if ( (3100 not in foundationalCourses) and (3250 not in foundationalCourses) ):
-        problems.append('You need to take either ECE 3100 or ECE 3250')
+        problems.append('You need to take either ECE 3100 or ECE 3250.')
     
     if ( len(foundationalCourses) < 3 ):
-        problems.append(f'You need to take at least three ECE foundational courses ({ strFormatterECE(ECE_FOUNDATION) })')
+        problems.append(f'You need to take at least three ECE foundational courses ({ strFormatter(ECE_FOUNDATION, "ECE") }).')
 
     # AAE
     requirementData = data.loc[['AAE']]
     classes = [class_.strip() for class_ in requirementData.iloc[0] if not pd.isnull(class_)]
 
     if ( len(classes) ):
-        problems.append(f'Verify with your advisor that they approve of these courses as AAE: {classes}')
+        problems.append(f'Verify with your advisor that they approve of these courses as AAE: {classes}.')
     else:
-        problems.append(f'You have not taken any AAE classes')
+        problems.append(f'You have not taken any AAE classes.')
 
     return problems
 
@@ -172,6 +186,6 @@ def analyzeLS(classes):
 
     numLSCategories = len(categories)
     if (numLSCategories < NUM_LS_CAT):
-        problems.append(f'You have not taken enough LS categories. You have only taken {categories}, but you need {NUM_LS_CAT} categories.')
+        problems.append(f'You have not taken enough LS categories. You have only taken {", ".join(categories)}, but you need {NUM_LS_CAT} categories.')
 
     return problems
