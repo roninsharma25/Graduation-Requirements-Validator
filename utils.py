@@ -156,15 +156,16 @@ def analyzeData(uploadedFile):
     problems = []
     
     # TODO: the first non-header line shouldn't need to be the max length 
-    fileData = pd.read_csv(uploadedFile, names = ['Category', 'Class 1', 'Class 2', 'Class 3', 'Class 4'], header = 0, index_col = 'Category')
-
-    # Check LS requirement
-    lsData = fileData.loc[['Liberal Studies']]
-    lsClasses = [class_.strip() for class_ in lsData.iloc[0] if not pd.isnull(class_)]
-    problems += analyzeLS(lsClasses)
-
+    # fileData = pd.read_csv(uploadedFile, names = ['Category', 'Classes'], header = 0, index_col = 'Category')
+    fileData = pd.read_csv(uploadedFile, header = 0)
+    
     problems += simpleRequirements(fileData)
     problems += complicatedRequirements(fileData)
+
+    # Check LS requirement
+    lsData = fileData.loc[['LIBERAL STUDIES']]
+    lsClasses = [class_.strip() for class_ in lsData.iloc[0] if not pd.isnull(class_)]
+    problems += analyzeLS(lsClasses)
 
     print(fileData)
     print(f'Problems: {problems}')
@@ -193,7 +194,7 @@ def analyzeLS(classes):
 
     numLSCategories = len(categories)
     if (numLSCategories < NUM_LS_CAT):
-        problems.append(f'You have not taken enough LS categories. You have only taken {", ".join(categories)}, but you need {NUM_LS_CAT} categories.' +
-        'Here are some liberal studies suggestions: {possibleLSCourses}')
+        problems.append(f'You have not taken enough LS categories. You have only taken {", ".join(categories)}, but you need {NUM_LS_CAT} categories. ' +
+        f'Here are some liberal studies suggestions -  {" ".join(possibleLSCourses)}')
 
     return problems

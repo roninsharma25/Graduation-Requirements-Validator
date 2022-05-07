@@ -8,6 +8,7 @@ pageFormButtons = ['Begin', 'Submit', 'Back']
 if 'page' not in st.session_state or 'error' not in st.session_state:
     st.session_state.page = 0
     st.session_state.error = False
+    st.session_state.templateData = pd.read_csv('template.csv').to_csv().encode('utf-8')
 
 st.title(pageTitles[st.session_state.page])
 
@@ -34,7 +35,10 @@ elif (st.session_state.page == 1):
 
     col1.subheader('Download the template file')
     ### Add template file download feature
-    if col1.button('Download Template'):
+    # if col1.button('Download Template'):
+    #     print('download template')
+    if col1.download_button(label='Download Template', data = st.session_state.templateData, 
+                            file_name = 'template.csv', mime = 'text/csv'):
         print('download template')
 
     ### Add file upload feature
