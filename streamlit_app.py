@@ -34,15 +34,20 @@ elif (st.session_state.page == 1):
     col1, col2 = st.columns(2)
 
     col1.subheader('Download the template file')
-    ### Add template file download feature
-    # if col1.button('Download Template'):
-    #     print('download template')
+    col1.markdown('*You should download this template file and enter your courses.*')
+    col1.header('')
+
+    # Template file download
     if col1.download_button(label='Download Template', data = st.session_state.templateData, 
                             file_name = 'template.csv', mime = 'text/csv'):
         print('download template')
+    
+    col1.subheader('')
+    col1.write('')
 
-    ### Add file upload feature
-    col2.subheader('Upload your course file')
+    # File upload feature
+    col2.subheader('Upload your course history')
+    col2.markdown('*After you entered your courses in the file, you should upload it below.*')
     fileUploader = col2.file_uploader('')
 
     if (st.session_state.error):
@@ -52,9 +57,24 @@ elif (st.session_state.page == 2):
     col1, col2 = st.columns(2)
 
     col1.subheader('Class Data Submitted')
+    col1.markdown('*Here is the class data you submitted.*')
     col1.write(st.session_state.data)
-    col2.subheader('Graduation Requirement Feedback')
 
+    col1.subheader(' ')
+    col1.subheader('Requirement Exploration')
+    class_ = col1.text_input('Class Input', '')
+    if (class_):
+        res = getRequirement(class_)
+        if (res == NOT_INCORPORATED):
+            msg = NOT_INCORPORATED
+        else:
+            msg = f'{class_} can satisfy the following requirements: {res}.'
+        col1.write(msg)
+    
+    col1.subheader(' ')
+
+    col2.subheader('Requirement Feedback')
+    col2.markdown('*If you are missing any requirements, they are listed below.*')
     for problem in st.session_state.problems:
         col2.markdown(f'- {problem}')
 
@@ -84,8 +104,6 @@ def buttonCallback():
 
 def buttonBackCallback():
     st.session_state.page -= 1
-
-print(st.session_state.page)
 
 
 if (st.session_state.page != 1):

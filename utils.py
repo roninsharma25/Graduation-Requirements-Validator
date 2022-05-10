@@ -2,20 +2,6 @@ from constants import *
 import pandas as pd
 import numpy as np
 
-"""
-Features to check
-1. MATH, PHYS, CHEM, CS, PE, FWS, ENGRI, ENGRD
-2. Liberal studies
-3. 2100, 2200, 2300
-4. AAE
-5. OTE
-6. 3000+ ECE
-7. 4000+ ECE
-8. CDE
-9. Advanced computing
-10. Probability
-
-"""
 
 def strFormatter(courses, subj):
     """
@@ -45,8 +31,8 @@ def checkRequirement(data, requirement, type_):
             
             problems.append(str_)
     
-    else: # type 1
-        classNums = [class_.strip(' ')[-1] for class_ in classes]
+    elif (type_ == 1):
+        classNums = [int(class_.split(' ')[-1]) for class_ in classes]
         missingClasses = [class_ for class_ in CLASS_SPECIFIC[requirement] if class_ not in classNums]
         if (missingClasses != []):
             str_ = f'You have not taken all {requirement} classes. '
@@ -56,7 +42,19 @@ def checkRequirement(data, requirement, type_):
             else:
                 str_ += f'You have taken {", ".join(classes)}, but need to take {missingFormatted}.'
             
-        problems.append(str_)
+            problems.append(str_)
+    
+    else: # type 2
+        possibleClasses = MULTI_OPTION[requirement]
+        flag = True
+
+        for class_ in classes:
+            if class_ in possibleClasses:
+                flag = False
+
+        if (flag):
+            problems.append(f'You have not taken at least one {requirement} course. Here ' +
+            f'are some options: {", ".join(possibleClasses)}.')
 
     return problems
 
@@ -73,20 +71,18 @@ def simpleRequirements(data):
         problems += checkRequirement(data, req, 0)
     
     # MATH 1910, 1920, 2930, 2940
-    # PHYS 1112, 2213, 2214 - TODO: INCORPORATE HONORS ALTERNATIVES
+    # PHYS 1112, 2213, 2214
     # CHEM 2090
     # CS 1110
     for req in CLASS_SPECIFIC.keys():
-        res = checkRequirement(data, req, 1)
-        print(res)
-        problems += res
+        problems += checkRequirement(data, req, 1)
     
-    # TODO: ADD MULTI-OPTION CLASSES
     # Probability - 1 of ENGRD 2700, ECE 3100
     # Advanced Computing: 1 of CS 2110, ECE 2400, ENGRD 3200, AEP 4380, ECE 4740, ECE 4750, ECE 4760
     # CDE: 1 of 4370, 4530, 4670, 4740, 4750, 4760
-    # Technical Writing: 1 of ENGRC 3350, ENGRC 3500, ENGRC 3023, ECE 4760 follow-up
-        # TODO: check recent course addition
+    # Technical Writing: 1 of ENGRC 3350, ENGRC 3500, ENGRC 3023,
+    for req in MULTI_OPTION.keys():
+        problems += checkRequirement(data, req, 2)
 
     return problems
 
@@ -98,18 +94,19 @@ def complicatedRequirements(data):
         # At least 1 3000+
         # No ENGRC, no ECE EXCEPT FOR ECE 5830
         # Provide a disclaimer: these should count/probably won't count
-    requirementData = data.loc[['UPPER LEVEL']]
-    classes = [class_.strip() for class_ in requirementData.iloc[0] if not pd.isnull(class_)]
+    requirementData = data.loc[['OTE']]
+    classes = [class_.split() for class_ in requirementData.iloc[0] if not pd.isnull(class_)]
 
-    ECEClassesWithout5830 = [class_ for class_ in classes if class_.strip(' ')[0].upper() == 'ECE' and int(class_.strip(' ')[1]) != 5830 ]
+    print(classes)
+    ECEClassesWithout5830 = [class_ for class_ in classes if class_[0].strip().upper() == 'ECE' and int(class_[1]) != 5830 ]
     if ( len(ECEClassesWithout5830) > 0 ):
         problems.append(f'The only ECE course that can be considered an OTE is ECE 5830, but you have included these courses: {ECEClassesWithout5830}.')
 
-    ENGRCOTEClasses = [class_ for class_ in classes if class_.strip(' ')[0].upper() == 'ENGRC']
+    ENGRCOTEClasses = [class_ for class_ in classes if class_[0].strip().upper() == 'ENGRC']
     if ( len(ENGRCOTEClasses) > 0 ):
         problems.append(f"ENGRC courses can't be used to satisfy the OTE reqirement, but you have included these courses: {ENGRCOTEClasses}.")
 
-    OTE3000 = [ class_ for class_ in classes if ( int(class_.strip(' ')[1]) >= 3000 and class_ not in ENGRCOTEClasses ) ]
+    OTE3000 = [ class_ for class_ in classes if ( int(class_[1]) >= 3000 and class_ not in ENGRCOTEClasses ) ]
     if ( not len(OTE3000) ):
         problems.append('You need at least one 3000+ course as an OTE.')
 
@@ -119,14 +116,14 @@ def complicatedRequirements(data):
         # Not acceptable: 3600, 5830, 4999, 5870, 5880
     # 4000 (also count CDE) - at least 3
     requirementData = data.loc[['UPPER LEVEL']]
-    classes = [class_.strip() for class_ in requirementData.iloc[0] if not pd.isnull(class_)]
+    classes = [class_.split() for class_ in requirementData.iloc[0] if not pd.isnull(class_)]
 
     # Verify that all are ECE courses
-    nonECEClasses = [class_ for class_ in classes if class_.strip(' ')[0].upper() != 'ECE']
+    nonECEClasses = [class_ for class_ in classes if class_[0].strip().upper() != 'ECE']
     if (len(nonECEClasses) > 0):
         problems.append(f'All upper level courses need to be ECE courses, but you have included these courses: {nonECEClasses}.')
 
-    ECEClassNums = [class_.strip(' ')[1] for class_ in classes if class_.strip(' ')[0].upper() == 'ECE']
+    ECEClassNums = [int(class_[1]) for class_ in classes if class_[0].strip().upper() == 'ECE']
     invalidECEClasses = [num for num in ECEClassNums if num in INVALID_UPPER_LEVEL_ECE]
     if (len(invalidECEClasses) > 0):
         problems.append(f'The following courses are not acceptable upper-level ECE electives {invalidECEClasses}.')
@@ -143,10 +140,14 @@ def complicatedRequirements(data):
 
     # AAE
     requirementData = data.loc[['AAE']]
-    classes = [class_.strip() for class_ in requirementData.iloc[0] if not pd.isnull(class_)]
+    classes = [class_.split() for class_ in requirementData.iloc[0] if not pd.isnull(class_)]
+
+    courses = []
+    for course in classes:
+        courses += [course[0] + ' ' + course[1]]
 
     if ( len(classes) ):
-        problems.append(f'Verify with your advisor that they approve of these courses as AAE: {classes}.')
+        problems.append(f'Verify with your advisor that they approve of these courses as AAE: {", ".join(courses)}.')
     else:
         problems.append(f'You have not taken any AAE classes.')
 
@@ -154,10 +155,11 @@ def complicatedRequirements(data):
 
 def analyzeData(uploadedFile):
     problems = []
+    fileData = pd.read_csv(uploadedFile, names = ['Category', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9'], engine = 'python', index_col = 'Category')
+    fileData = fileData.iloc[1: , :] # remove the first row
+    print('FILE DATA')
     
-    # TODO: the first non-header line shouldn't need to be the max length 
-    # fileData = pd.read_csv(uploadedFile, names = ['Category', 'Classes'], header = 0, index_col = 'Category')
-    fileData = pd.read_csv(uploadedFile, header = 0)
+    print(fileData)
     
     problems += simpleRequirements(fileData)
     problems += complicatedRequirements(fileData)
@@ -167,19 +169,14 @@ def analyzeData(uploadedFile):
     lsClasses = [class_.strip() for class_ in lsData.iloc[0] if not pd.isnull(class_)]
     problems += analyzeLS(lsClasses)
 
-    print(fileData)
-    print(f'Problems: {problems}')
-
     return fileData, problems
 
 def analyzeLS(classes):
     problems = []
     df = pd.read_csv('liberal_studies.csv')
     
-    # TODO: Update category checker logic not to double count single classes
     categories = []
     for class_ in classes:
-        print(class_)
         categories += [category for category in df[ df['Department + Course Number'] == class_].iloc[:, 0]]
     
     # Remove redundant categories
@@ -198,3 +195,18 @@ def analyzeLS(classes):
         f'Here are some liberal studies suggestions -  {" ".join(possibleLSCourses)}')
 
     return problems
+
+def getRequirement(class_):
+    reqs = []
+    for req in MULTI_OPTION:
+        if (class_ in MULTI_OPTION[req]):
+            reqs.append(req.lower())
+    
+    sep_ = class_.split(' ')
+    if (sep_[0] == 'ECE' and int(sep_[1]) in ECE_FOUNDATION):
+        reqs.append('ECE Foundational')
+
+    if (len(reqs) == 0):
+        return NOT_INCORPORATED
+    
+    return ', '.join(reqs)

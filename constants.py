@@ -19,6 +19,12 @@ CORE_CLASSES = {
     'CS': [1110]
 }
 
+# All requirements
+ALL_REQUIREMENTS = ['PE', 'FWS', 'ENGRI', 'CORE MATH', 'CORE PHYSICS',
+                    'CORE CHEMISTRY', 'CORE CS', 'CORE ECE', 'LIBERAL STUDIES',
+                    'ENGRD', 'UPPER LEVEL', 'OTE', 'AAE', 'PROBABILITY',
+                    'ADVANCED COMPUTING', 'CDE', 'TECHNICAL WRITING']
+
 # Minimum number Requirements
 MIN_NUMBER = {
     'PE': 2,
@@ -32,10 +38,10 @@ MIN_NUMBER = {
 # Class-specific Requirements
 CLASS_SPECIFIC = {
     'CORE MATH': [1910, 1920, 2930, 2940],
-    'CORE PHYSICS': [1110, 1112, 2213, 2214],
+    'CORE PHYSICS': [1112, 2213, 2214],
     'CORE CHEMISTRY': [2090],
     'CORE CS': [1110],
-    'CORE ECE': [2100, 2300, 2720],
+    'CORE ECE': [2100, 2200, 2300],
 }
 
 MULTI_OPTION = {
@@ -43,9 +49,11 @@ MULTI_OPTION = {
     'ADVANCED COMPUTING': ['CS 2110', 'ECE 2400', 
         'ENGRD 3200', 'AEP 4380', 'ECE 4740',
         'ECE 4750', 'ECE 4760'],
-    'CDE': [4370, 4530, 4670, 4740, 4750, 4760],
-    'TECHNICAL WRITING': ['ENGRC 3023', 'ENGRC 3350', 
-        'ENGRC 3500', 'ECE 4760']
+    'CDE': ['ECE 4370', 'ECE 4530', 'ECE 4670', 'ECE 4740', 'ECE 4750', 'ECE 4760'],
+    'TECHNICAL WRITING': ['ENGRC 3020', 'ENGRC 3023', 'ENGRC 3025', 'ENGRC 3111', 
+                          'ENGRC 3120', 'ENGRC 3152', 'ENGRC 3340', 'ENGRC 3350',
+                          'ENGRC 3500', 'ENGRC 3610', 'ENGRC 3640', 'ENGRC 4152',
+                          'ENGRC 4590']
 }
 
 INVALID_UPPER_LEVEL_ECE = [3600, 4999, 5830, 5870, 5880]
@@ -67,3 +75,5 @@ LS_REQUIREMENT_SATISFIER = {
     'SBA': ['AAS 3400', 'AEM 1300', 'AIIS 2240', 'AMST 1104', 'ANTHR 2400'],
     'CE': ['ENGRC 3023', 'ENGRC 3350', 'ENGRC 3500']
 }
+
+NOT_INCORPORATED = "That class hasn't been incorporated into the dataset yet."
