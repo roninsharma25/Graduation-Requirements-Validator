@@ -8,7 +8,7 @@ pageFormButtons = ['Begin', 'Submit', 'Back']
 if 'page' not in st.session_state or 'error' not in st.session_state:
     st.session_state.page = 0
     st.session_state.error = False
-    st.session_state.templateData = pd.read_csv('template.csv').to_csv().encode('utf-8')
+    st.session_state.templateData = pd.read_csv('template.csv').to_csv(index = False).encode('utf-8')
 
 st.title(pageTitles[st.session_state.page])
 
